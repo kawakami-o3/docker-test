@@ -1,9 +1,12 @@
 
-FROM rust:1.36 AS rust-builder
+FROM rust:1.36 as rust-builder
 ADD . .
 RUN cargo build --release
+RUN cargo install --path .
+
+
+FROM alpine:latest
+COPY --from=rust-builder /usr/local/cargo/bin/docker-test /usr/local/bin
 EXPOSE 80
-CMD ["cargo", "run", "--release"]
-#
-#COPY --from=rust-builder /home/rust/src/target/x86_64-unknown-linux-gnu/release/docker-test /usr/local/bin
-#CMD ["docker-test"]
+CMD ["docker-test"]
+
