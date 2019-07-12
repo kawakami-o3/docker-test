@@ -1,20 +1,7 @@
-# Use an official Python runtime as a parent image
-FROM python:2.7-slim
 
-# Set the working directory to /app
-WORKDIR /app
+FROM rust:1.36 AS rust-builder
+ADD . .
+RUN cargo build --release --target x86_64-unknown-linux-gnu
 
-# Copy the current directory contents into the container at /app
-COPY . /app
-
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-
-# Make port 80 available to the world outside this container
-EXPOSE 80
-
-# Define environment variable
-ENV NAME World
-
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+COPY --from=rust-builder /home/rust/src/target/x86_64-unknown-linux-gnu/release/{bin} /usr/local/bin
+CMD ["{bin}"]
